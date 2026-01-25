@@ -4,21 +4,21 @@ const routes = [
   // ----------------------------------------------------------------------
   {
     path: "/",
-    component: () => import("layouts/MainLayout.vue"), // Your public website layout
+    component: () => import("layouts/MainLayout.vue"),
     children: [
       { path: "", component: () => import("pages/IndexPage.vue") },
       { path: "login", component: () => import("pages/Auth/Login.vue") },
-      { path: "routing", component: () => import("src/pages/RoutingButton.vue") }, // Assuming you have a login
-      // Assuming you have a login
+      // Path corrected to use standard alias
+      { path: "routing", component: () => import("pages/RoutingButton.vue") },
     ],
   },
 
   // ----------------------------------------------------------------------
-  // 2. SAAS SUPER ADMIN PANEL (For You)
+  // 2. SAAS SUPER ADMIN PANEL (For SaaS Owner)
   // ----------------------------------------------------------------------
   {
     path: "/saas",
-    component: () => import("layouts/SaasLayout.vue"), // Create this layout with your Admin Sidebar
+    component: () => import("layouts/SaasLayout.vue"),
     children: [
       {
         path: "dashboard",
@@ -44,7 +44,7 @@ const routes = [
   // ----------------------------------------------------------------------
   {
     path: "/tenant",
-    component: () => import("layouts/TenantLayout.vue"), // Layout with Inventory/HRM Sidebar
+    component: () => import("layouts/TenantLayout.vue"),
     children: [
       {
         path: "dashboard",
@@ -93,24 +93,35 @@ const routes = [
         component: () => import("pages/TenantPanel/Sales/Returns.vue"),
       },
 
-      // People (CRM)
+      // People (CRM) - Fixed paths to standard alias
       {
         path: "customers",
-        component: () => import("src/pages/TenantPanel/Customers.vue"),
+        component: () => import("pages/TenantPanel/Customers.vue"),
       },
       {
         path: "suppliers",
-        component: () => import("src/pages/TenantPanel/Suppliers.vue"),
+        component: () => import("pages/TenantPanel/Suppliers.vue"),
       },
 
-      // Settings
+      // Settings - Fixed filenames to match your current files
       {
         path: "settings/general",
-        component: () => import("src/pages/TenantPanel/General.vue"),
+        component: () => import("pages/TenantPanel/GeneralPage.vue"),
       },
       {
+        path: "report/profit",
+        component: () => import("src/pages/TenantPanel/Reports/ProfitLoss.vue"),
+      },
+
+      {
+        path: "report/sales",
+        component: () =>
+          import("src/pages/TenantPanel/Reports/SalesReport.vue"),
+      },
+
+      {
         path: "settings/taxes",
-        component: () => import("src/pages/TenantPanel/Taxes.vue"),
+        component: () => import("pages/TenantPanel/TaxesPage.vue"),
       },
     ],
   },
@@ -120,9 +131,28 @@ const routes = [
   // ----------------------------------------------------------------------
   {
     path: "/pos",
-    // We use a specific layout that usually has NO sidebar (fullscreen mode)
     component: () => import("layouts/PosLayout.vue"),
-    children: [{ path: "", component: () => import("pages/POS/Terminal.vue") }],
+    children: [
+      // Default POS view
+      {
+        path: "Terminal",
+        component: () => import("src/pages/POS/Terminal.vue"),
+      },
+      // Additional POS Utility routes
+
+      {
+        path: "Dashboard",
+        component: () => import("src/pages/POS/DashBoard.vue"),
+      },
+      {
+        path: "held-orders",
+        component: () => import("pages/POS/HeldOrders.vue"),
+      },
+      {
+        path: "shift",
+        component: () => import("pages/POS/OpenCloseShift.vue"),
+      },
+    ],
   },
 
   // ----------------------------------------------------------------------

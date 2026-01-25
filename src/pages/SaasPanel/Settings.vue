@@ -1,10 +1,10 @@
 <template>
   <q-page class="q-pa-md bg-grey-2">
-    <div class="text-h5 text-weight-bold q-mb-md">Global Settings</div>
+    <div class="text-h5 text-weight-bold q-mb-md text-teal">Global Settings</div>
 
     <div class="row q-col-gutter-md">
       <div class="col-12 col-md-6">
-        <q-card flat bordered>
+        <q-card  bordered>
           <q-card-section>
             <div class="text-h6">General Configuration</div>
           </q-card-section>
@@ -17,7 +17,7 @@
       </div>
 
       <div class="col-12 col-md-6">
-        <q-card flat bordered>
+        <q-card  bordered>
           <q-card-section>
             <div class="text-h6">Payment Gateways</div>
           </q-card-section>
@@ -32,7 +32,7 @@
     </div>
 
     <div class="row justify-end q-mt-lg">
-      <q-btn color="primary" icon="save" label="Save Changes" size="lg" unelevated @click="saveSettings" />
+      <q-btn color="teal" icon="save" no-caps dense label="Save Changes" size="lg" @click="saveSettings" />
     </div>
 
   </q-page>

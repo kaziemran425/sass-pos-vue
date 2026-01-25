@@ -1,9 +1,9 @@
 <template>
   <q-page class="q-pa-md bg-grey-2">
     <div class="row items-center q-mb-md">
-      <div class="text-h5 text-weight-bold">Suppliers & Vendors</div>
+      <div class="text-h5 text-weight-bold text-teal-4">Suppliers & Vendors</div>
       <q-space />
-      <q-btn color="secondary" icon="local_shipping" label="Add Supplier" unelevated @click="openDialog()" />
+      <q-btn color="teal-4" icon="local_shipping" label="Add Supplier" unelevated @click="openDialog()" />
     </div>
 
     <q-card flat bordered>
@@ -15,7 +15,7 @@
         flat
       >
         <template v-slot:top-right>
-          <q-input borderless dense debounce="300" v-model="filter" placeholder="Search suppliers">
+          <q-input outlined dense debounce="300" v-model="filter" placeholder="Search suppliers">
             <template v-slot:append>
               <q-icon name="search" />
             </template>

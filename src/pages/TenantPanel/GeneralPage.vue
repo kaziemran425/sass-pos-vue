@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-md bg-grey-2">
     <div class="row items-center q-mb-md">
-      <div class="text-h5 text-weight-bold">General Settings</div>
+      <div class="text-h5 text-weight-bold text-red-7">General Settings</div>
     </div>
 
     <div class="row q-col-gutter-md">
@@ -48,7 +48,7 @@
       <div class="col-12 col-md-4">
         <q-card flat bordered class="full-height">
           <q-card-section>
-            <div class="text-h6">Store Logo</div>
+            <div class="text-h6 text-teal-9">Store Logo</div>
           </q-card-section>
 
           <q-separator />
@@ -82,7 +82,7 @@
     </div>
 
     <q-page-sticky position="bottom-right" :offset="[18, 18]">
-      <q-btn fab icon="save" color="primary" label="Save Changes" @click="saveSettings" />
+      <q-btn fab icon="save" dense no-caps color="teal-7" label="Save Changes" @click="saveSettings" />
     </q-page-sticky>
 
   </q-page>
@@ -112,7 +112,7 @@ const defaultForm = {
 const form = reactive({ ...defaultForm })
 
 onMounted(() => {
-  const stored = localStorage.getItem('tenant_general_settings')
+  const stored = localStorage.getItem('tenant_generalPage_settings')
   if (stored) {
     Object.assign(form, JSON.parse(stored))
   } else {
@@ -131,7 +131,7 @@ const handleFileUpload = (file) => {
 
 const saveSettings = () => {
   // In a real app, form.logo should be the URL returned from the server
-  localStorage.setItem('tenant_general_settings', JSON.stringify(form))
+  localStorage.setItem('tenant_generalPage_settings', JSON.stringify(form))
 
   $q.notify({
     type: 'positive',

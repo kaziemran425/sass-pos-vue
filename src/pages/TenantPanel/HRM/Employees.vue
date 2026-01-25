@@ -1,9 +1,9 @@
 <template>
   <q-page class="q-pa-md bg-grey-2">
     <div class="row items-center q-mb-md">
-      <div class="text-h5 text-weight-bold">Staff Directory</div>
+      <div class="text-h5 text-weight-bold text-teal-5">Staff Directory</div>
       <q-space />
-      <q-btn color="primary" icon="person_add" label="New Employee" unelevated @click="openDialog()" />
+      <q-btn color="teal-5" icon="person_add" label="New Employee" dense no-caps @click="openDialog()" />
     </div>
 
     <q-card flat bordered>
@@ -15,7 +15,7 @@
         flat
       >
         <template v-slot:top-right>
-          <q-input borderless dense debounce="300" v-model="filter" placeholder="Search staff">
+          <q-input outlined dense debounce="300" v-model="filter" placeholder="Search staff">
             <template v-slot:append>
               <q-icon name="search" />
             </template>

@@ -1,83 +1,45 @@
 <template>
-  <q-card style="min-width: 500px">
-    <q-card-section class="row items-center">
-      <div class="text-h6">Held / Parked Orders</div>
-      <q-space />
-      <q-btn icon="close" flat round dense v-close-popup />
-    </q-card-section>
+  <q-page class="q-pa-md">
+    <div class="row items-center q-mb-md">
+      <q-btn icon="arrow_back" flat round to="/pos" />
+      <div class="text-h5 q-ml-sm">Held Orders</div>
+    </div>
 
-    <q-separator />
+    <div v-if="orders.length === 0" class="text-center text-grey q-mt-xl">
+      <q-icon name="remove_shopping_cart" size="60px" />
+      <div class="text-h6">No held orders found</div>
+    </div>
 
-    <q-card-section class="q-pa-none">
-      <div v-if="heldOrders.length === 0" class="text-center q-pa-xl text-grey">
-        <q-icon name="remove_shopping_cart" size="50px" />
-        <div class="q-mt-md">No orders currently on hold.</div>
+    <div class="row q-col-gutter-md" v-else>
+      <div class="col-12 col-sm-6 col-md-4" v-for="(order, i) in orders" :key="i">
+        <q-card bordered>
+          <q-card-section class="bg-orange-1 row items-center justify-between">
+            <div class="text-weight-bold">Order #{{ order.id }}</div>
+            <div class="text-caption">{{ order.time }}</div>
+          </q-card-section>
+
+          <q-card-section>
+            <div class="text-subtitle1 text-weight-bold">${{ order.total }}</div>
+            <div class="text-caption text-grey">{{ order.items }} Items</div>
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-actions align="right">
+            <q-btn flat color="red" label="Delete" />
+            <q-btn flat color="green" label="Restore to Cart" to="/pos" />
+          </q-card-actions>
+        </q-card>
       </div>
-
-      <q-list separator v-else>
-        <q-item v-for="(order, index) in heldOrders" :key="index">
-          <q-item-section avatar>
-            <q-avatar color="orange-1" text-color="orange" icon="pause" />
-          </q-item-section>
-
-          <q-item-section>
-            <q-item-label class="text-weight-bold">Order #{{ order.id }}</q-item-label>
-            <q-item-label caption>
-              {{ order.items.length }} Items • Held at {{ order.time }}
-            </q-item-label>
-          </q-item-section>
-
-          <q-item-section side>
-            <div class="text-weight-bold text-black">${{ order.total }}</div>
-          </q-item-section>
-
-          <q-item-section side>
-            <q-btn flat round color="green" icon="play_arrow" @click="restore(index)">
-              <q-tooltip>Restore to Cart</q-tooltip>
-            </q-btn>
-            <q-btn flat round color="red" icon="delete" size="sm" @click="discard(index)" />
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-card-section>
-
-    </q-card>
+    </div>
+  </q-page>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 
-const emit = defineEmits(['restore'])
-const heldOrders = ref([])
-
-onMounted(() => {
-  // Load Mock Held Orders if empty
-  const stored = localStorage.getItem('pos_held_orders')
-  if (stored) {
-    heldOrders.value = JSON.parse(stored)
-  } else {
-    // Fake data for demo
-    heldOrders.value = [
-      { id: '101', time: '10:30 AM', total: '15.50', items: [{ id: 1, name: 'Burger', price: 5, qty: 3 }] }
-    ]
-  }
-})
-
-const restore = (index) => {
-  const order = heldOrders.value[index]
-  emit('restore', order.items) // Send items back to Terminal
-
-  // Remove from held list
-  heldOrders.value.splice(index, 1)
-  save()
-}
-
-const discard = (index) => {
-  heldOrders.value.splice(index, 1)
-  save()
-}
-
-const save = () => {
-  localStorage.setItem('pos_held_orders', JSON.stringify(heldOrders.value))
-}
+const orders = ref([
+  { id: 101, time: '10:30 AM', total: '15.50', items: 3 },
+  { id: 105, time: '11:15 AM', total: '45.00', items: 5 },
+])
 </script>

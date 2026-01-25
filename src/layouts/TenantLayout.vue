@@ -21,7 +21,7 @@
             <q-item clickable to="/tenant/inventory/products"><q-item-section>Products</q-item-section></q-item>
             <q-item clickable to="/tenant/inventory/categories"><q-item-section>Categories</q-item-section></q-item>
             <q-item clickable to="/tenant/inventory/brands"><q-item-section>Brands</q-item-section></q-item>
-            <q-item clickable to="/tenant/inventory/labels"><q-item-section>Print Labels</q-item-section></q-item>
+            <q-item clickable to="/tenant/inventory/labels"><q-item-section>BarCode Management</q-item-section></q-item>
           </q-list>
         </q-expansion-item>
 
@@ -44,6 +44,13 @@
           <q-list class="q-pl-md">
             <q-item clickable to="/tenant/customers"><q-item-section>Customers</q-item-section></q-item>
             <q-item clickable to="/tenant/suppliers"><q-item-section>Suppliers</q-item-section></q-item>
+          </q-list>
+        </q-expansion-item>
+
+          <q-expansion-item icon="report" label="Reports">
+          <q-list class="q-pl-md">
+            <q-item clickable to="/tenant/report/profit"><q-item-section>Profit_Lose</q-item-section></q-item>
+            <q-item clickable to="/tenant/report/sales"><q-item-section>Sales_Report</q-item-section></q-item>
           </q-list>
         </q-expansion-item>
 

@@ -1,109 +1,192 @@
 <template>
   <q-page class="q-pa-md bg-grey-2">
-    <div class="row items-center q-mb-md">
-      <div class="text-h5 text-weight-bold">Daily Attendance</div>
-      <q-space />
-      <div class="row items-center q-gutter-sm bg-white rounded-borders q-px-sm">
-        <q-icon name="event" color="primary" />
-        <div class="cursor-pointer">
-          {{ selectedDate }}
-          <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-            <q-date v-model="selectedDate" mask="YYYY-MM-DD" @update:model-value="loadAttendance">
-              <div class="row items-center justify-end">
-                <q-btn v-close-popup label="Close" color="primary" flat />
-              </div>
-            </q-date>
+
+    <div class="row items-center justify-between q-mb-lg">
+      <div>
+        <div class="text-h5 text-weight-bold text-teal-5">Attendance Tracker</div>
+        <div class="text-caption text-grey-7">Manage daily check-ins and work hours</div>
+      </div>
+
+      <div class="row items-center bg-white shadow-1 rounded-borders q-pa-xs">
+        <q-btn flat round dense icon="chevron_left" color="grey-7" @click="changeDay(-1)" />
+
+        <div class="q-mx-md cursor-pointer row items-center text-weight-bold text-blue-grey-9">
+          <q-icon name="event" class="q-mr-sm text-primary" />
+          {{ formattedDateDisplay }}
+          <q-popup-proxy transition-show="scale" transition-hide="scale">
+            <q-date v-model="selectedDate" mask="YYYY-MM-DD" minimal @update:model-value="loadData" />
           </q-popup-proxy>
         </div>
+
+        <q-btn flat round dense icon="chevron_right" color="grey-7" @click="changeDay(1)" />
       </div>
     </div>
 
-    <div class="row q-col-gutter-md q-mb-md">
+    <div class="row q-col-gutter-md q-mb-lg">
       <div class="col-12 col-md-4">
-        <q-card flat bordered class="bg-green-1">
-          <q-card-section>
-            <div class="text-h4 text-green-9 text-weight-bold">{{ presentCount }}</div>
-            <div class="text-caption text-green-9">Present Today</div>
+        <q-card flat bordered class="bg-teal-5 full-height">
+          <q-card-section class="row items-center">
+            <q-avatar color="green-1" text-color="green-7" icon="check_circle" size="md" />
+            <div class="q-ml-md">
+              <div class="text-h5 text-weight-bold">{{ stats.present }}</div>
+              <div class="text-caption text-white">Present Today</div>
+            </div>
           </q-card-section>
         </q-card>
       </div>
+
       <div class="col-12 col-md-4">
-         <q-card flat bordered class="bg-red-1">
-          <q-card-section>
-            <div class="text-h4 text-red-9 text-weight-bold">{{ absentCount }}</div>
-            <div class="text-caption text-red-9">Absent / Late</div>
+        <q-card flat bordered class="bg-grey-4 full-height">
+          <q-card-section class="row items-center">
+            <q-avatar color="orange-1" text-color="orange-8" icon="access_time" size="md" />
+            <div class="q-ml-md">
+              <div class="text-h5 text-weight-bold">{{ stats.late }}</div>
+              <div class="text-caption text-black">Late Arrivals (> 09:00)</div>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <q-card flat bordered class="bg-orange-5 full-height">
+          <q-card-section class="row items-center">
+            <q-avatar color="grey-2" text-color="grey-7" icon="person_off" size="md" />
+            <div class="q-ml-md">
+              <div class="text-h5 text-weight-bold">{{ stats.absent }}</div>
+              <div class="text-caption text-white">Absent</div>
+            </div>
           </q-card-section>
         </q-card>
       </div>
     </div>
 
-    <q-card flat bordered>
+    <q-card flat bordered class="bg-white shadow-1">
       <q-table
         :rows="attendanceRows"
         :columns="columns"
         row-key="employeeId"
         flat
+        :pagination="{ rowsPerPage: 10 }"
       >
-        <template v-slot:body="props">
-          <q-tr :props="props">
-            <q-td key="employee" :props="props">
-              <div class="text-weight-bold">{{ props.row.name }}</div>
-            </q-td>
+        <template v-slot:body-cell-employee="props">
+          <q-td :props="props">
+            <div class="row items-center">
+              <q-avatar color="blue-1" text-color="blue-8" size="sm" class="q-mr-sm">
+                {{ props.row.name.charAt(0) }}
+              </q-avatar>
+              <div class="text-weight-medium">{{ props.row.name }}</div>
+            </div>
+          </q-td>
+        </template>
 
-            <q-td key="checkIn" :props="props">
-              <q-badge color="green" v-if="props.row.checkIn">
+        <template v-slot:body-cell-checkIn="props">
+          <q-td :props="props" align="center">
+            <div v-if="props.row.checkIn" class="cursor-pointer">
+              <q-badge :color="isLate(props.row.checkIn) ? 'orange' : 'green'" class="q-py-xs q-px-sm">
                 {{ props.row.checkIn }}
+                <q-tooltip>Click to Edit</q-tooltip>
               </q-badge>
-              <q-btn v-else size="sm" flat color="grey" label="Mark In" @click="markTime(props.row, 'in')" />
-            </q-td>
+              <q-popup-edit v-model="props.row.checkIn" v-slot="scope" @save="val => updateTime(props.row, 'in', val)">
+                <q-time v-model="scope.value" mask="HH:mm" format24h dense autofocus @keyup.enter="scope.set" />
+              </q-popup-edit>
+            </div>
 
-            <q-td key="checkOut" :props="props">
-               <q-badge color="orange" v-if="props.row.checkOut">
+            <q-btn v-else flat size="sm" color="grey-6" icon="login" label="Mark In" @click="markNow(props.row, 'in')" />
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-checkOut="props">
+          <q-td :props="props" align="center">
+             <div v-if="props.row.checkOut" class="cursor-pointer">
+              <q-badge color="blue-grey" class="q-py-xs q-px-sm">
                 {{ props.row.checkOut }}
+                <q-tooltip>Click to Edit</q-tooltip>
               </q-badge>
-              <q-btn v-else-if="props.row.checkIn" size="sm" flat color="grey" label="Mark Out" @click="markTime(props.row, 'out')" />
-              <span v-else class="text-grey">-</span>
-            </q-td>
+              <q-popup-edit v-model="props.row.checkOut" v-slot="scope" @save="val => updateTime(props.row, 'out', val)">
+                <q-time v-model="scope.value" mask="HH:mm" format24h dense autofocus @keyup.enter="scope.set" />
+              </q-popup-edit>
+            </div>
 
-            <q-td key="hours" :props="props" class="text-weight-bold">
-              {{ calculateHours(props.row.checkIn, props.row.checkOut) }}
-            </q-td>
+            <q-btn v-else-if="props.row.checkIn" flat size="sm" color="grey-6" icon="logout" label="Mark Out" @click="markNow(props.row, 'out')" />
+            <span v-else class="text-grey-4">-</span>
+          </q-td>
+        </template>
 
-            <q-td key="status" :props="props">
-               <q-chip size="sm" :color="props.row.checkIn ? 'green-1' : 'grey-3'">
-                 {{ props.row.checkIn ? 'Present' : 'Absent' }}
-               </q-chip>
-            </q-td>
-          </q-tr>
+        <template v-slot:body-cell-hours="props">
+          <q-td :props="props" align="center" class="text-weight-bold text-grey-8">
+            {{ calculateDuration(props.row.checkIn, props.row.checkOut) }}
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-status="props">
+          <q-td :props="props" align="right">
+            <q-chip
+              dense
+              size="sm"
+              :color="getStatusColor(props.row)"
+              text-color="white"
+              :icon="getStatusIcon(props.row)"
+            >
+              {{ getStatusLabel(props.row) }}
+            </q-chip>
+          </q-td>
         </template>
       </q-table>
     </q-card>
+
   </q-page>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { date } from 'quasar'
+import { date, useQuasar } from 'quasar'
 
-// Default to today formatted as YYYY-MM-DD
+const $q = useQuasar()
+
+// --- CONFIG ---
+const SHIFT_START = '09:00' // Used to calculate "Late" status
+
+// --- 1. Service Layer (Mock API) ---
+const AttendanceService = {
+  getEmployees() {
+    const stored = localStorage.getItem('tenant_employees')
+    return stored ? JSON.parse(stored) : [
+      { id: 1, name: 'Alice Johnson' },
+      { id: 2, name: 'Bob Smith' },
+      { id: 3, name: 'Charlie Brown' },
+      { id: 4, name: 'Diana Prince' }
+    ]
+  },
+  getLogs(dateStr) {
+    const allLogs = JSON.parse(localStorage.getItem('tenant_attendance') || '{}')
+    return allLogs[dateStr] || []
+  },
+  saveLog(dateStr, logs) {
+    const allLogs = JSON.parse(localStorage.getItem('tenant_attendance') || '{}')
+    allLogs[dateStr] = logs
+    localStorage.setItem('tenant_attendance', JSON.stringify(allLogs))
+  }
+}
+
+// --- 2. State ---
 const selectedDate = ref(date.formatDate(Date.now(), 'YYYY-MM-DD'))
 const allEmployees = ref([])
-const attendanceData = ref({}) // Structure: { '2023-10-25': [ { empId: 1, checkIn: '09:00', checkOut: '17:00' } ] }
+const todaysLogs = ref([]) // Array of logs for selectedDate
 
 const columns = [
-  { name: 'employee', label: 'Employee', align: 'left' },
+  { name: 'employee', label: 'Employee', align: 'left', sortable: true },
   { name: 'checkIn', label: 'Check In', align: 'center' },
   { name: 'checkOut', label: 'Check Out', align: 'center' },
-  { name: 'hours', label: 'Total Hours', align: 'center' },
+  { name: 'hours', label: 'Work Hours', align: 'center' },
   { name: 'status', label: 'Status', align: 'right' },
 ]
 
-// Computed: Merge Employee List with Today's Attendance Data
-const attendanceRows = computed(() => {
-  const todaysLog = attendanceData.value[selectedDate.value] || []
+// --- 3. Computed Logic ---
 
+// Merges Employee List + Attendance Data for the table
+const attendanceRows = computed(() => {
   return allEmployees.value.map(emp => {
-    const log = todaysLog.find(l => l.empId === emp.id) || {}
+    const log = todaysLogs.value.find(l => l.empId === emp.id) || {}
     return {
       employeeId: emp.id,
       name: emp.name,
@@ -113,52 +196,108 @@ const attendanceRows = computed(() => {
   })
 })
 
-const presentCount = computed(() => attendanceRows.value.filter(r => r.checkIn).length)
-const absentCount = computed(() => attendanceRows.value.length - presentCount.value)
-
-onMounted(() => {
-  // Load Employees
-  const empStored = localStorage.getItem('tenant_employees')
-  if (empStored) allEmployees.value = JSON.parse(empStored)
-  else allEmployees.value = [{ id: 1, name: 'John Doe' }, { id: 2, name: 'Jane Smith' }]
-
-  // Load Attendance
-  const attStored = localStorage.getItem('tenant_attendance')
-  if (attStored) attendanceData.value = JSON.parse(attStored)
+const formattedDateDisplay = computed(() => {
+  const d = date.extractDate(selectedDate.value, 'YYYY-MM-DD')
+  return date.formatDate(d, 'ddd, MMM Do YYYY')
 })
 
-const saveAttendance = () => {
-  localStorage.setItem('tenant_attendance', JSON.stringify(attendanceData.value))
+const stats = computed(() => {
+  let present = 0, late = 0, absent = 0
+
+  attendanceRows.value.forEach(row => {
+    if (!row.checkIn) {
+      absent++
+    } else {
+      present++
+      if (row.checkIn > SHIFT_START) late++
+    }
+  })
+  return { present, late, absent }
+})
+
+// --- 4. Helper Functions ---
+
+// Returns true if time is after 09:00
+const isLate = (timeStr) => {
+  if (!timeStr) return false
+  return timeStr > SHIFT_START
 }
 
-const markTime = (row, type) => {
-  if (!attendanceData.value[selectedDate.value]) {
-    attendanceData.value[selectedDate.value] = []
-  }
-
-  let log = attendanceData.value[selectedDate.value].find(l => l.empId === row.employeeId)
-  const nowTime = date.formatDate(Date.now(), 'HH:mm')
-
-  if (!log) {
-    log = { empId: row.employeeId }
-    attendanceData.value[selectedDate.value].push(log)
-  }
-
-  if (type === 'in') log.checkIn = nowTime
-  if (type === 'out') log.checkOut = nowTime
-
-  saveAttendance()
-}
-
-const calculateHours = (inTime, outTime) => {
-  if (!inTime || !outTime) return '-'
-
-  // Simple calculation assuming same day
+const calculateDuration = (inTime, outTime) => {
+  if (!inTime || !outTime) return '--:--'
   const d1 = date.extractDate(inTime, 'HH:mm')
   const d2 = date.extractDate(outTime, 'HH:mm')
   const diff = date.getDateDiff(d2, d1, 'minutes')
-  const hours = Math.floor(diff / 60)
-  const mins = diff % 60
-  return `${hours}h ${mins}m`
+
+  if (diff < 0) return 'Error' // Handle overnight or errors
+
+  const h = Math.floor(diff / 60)
+  const m = diff % 60
+  return `${h}h ${m}m`
 }
+
+const getStatusLabel = (row) => {
+  if (!row.checkIn) return 'Absent'
+  if (isLate(row.checkIn)) return 'Late'
+  return 'On Time'
+}
+
+const getStatusColor = (row) => {
+  if (!row.checkIn) return 'grey-5'
+  if (isLate(row.checkIn)) return 'orange-7'
+  return 'green-7'
+}
+
+const getStatusIcon = (row) => {
+  if (!row.checkIn) return 'person_off'
+  if (isLate(row.checkIn)) return 'warning'
+  return 'check'
+}
+
+// --- 5. Actions ---
+
+const loadData = () => {
+  allEmployees.value = AttendanceService.getEmployees()
+  todaysLogs.value = AttendanceService.getLogs(selectedDate.value)
+}
+
+// Handles Previous/Next Day buttons
+const changeDay = (days) => {
+  const current = date.extractDate(selectedDate.value, 'YYYY-MM-DD')
+  const newDate = date.addToDate(current, { days })
+  selectedDate.value = date.formatDate(newDate, 'YYYY-MM-DD')
+  loadData()
+}
+
+// "Mark In/Out" Button Click
+const markNow = (row, type) => {
+  const now = date.formatDate(Date.now(), 'HH:mm')
+  updateTime(row, type, now)
+}
+
+// Saving logic (Used by both Buttons and Edit Popup)
+const updateTime = (row, type, timeValue) => {
+  // 1. Find or Create Log Entry
+  let logEntry = todaysLogs.value.find(l => l.empId === row.employeeId)
+
+  if (!logEntry) {
+    logEntry = { empId: row.employeeId }
+    todaysLogs.value.push(logEntry)
+  }
+
+  // 2. Update Value
+  if (type === 'in') logEntry.checkIn = timeValue
+  if (type === 'out') logEntry.checkOut = timeValue
+
+  // 3. Persist
+  AttendanceService.saveLog(selectedDate.value, todaysLogs.value)
+
+  // 4. Force UI Refresh (Optional, handled by reactivity usually)
+  // loadData()
+  $q.notify({ type: 'positive', message: 'Attendance Updated', timeout: 500 })
+}
+
+onMounted(() => {
+  loadData()
+})
 </script>

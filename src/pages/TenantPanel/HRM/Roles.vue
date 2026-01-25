@@ -1,9 +1,9 @@
 <template>
   <q-page class="q-pa-md bg-grey-2">
     <div class="row items-center q-mb-md">
-      <div class="text-h5 text-weight-bold">Roles & Permissions</div>
+      <div class="text-h5 text-weight-bold text-teal-5">Roles & Permissions</div>
       <q-space />
-      <q-btn color="primary" icon="add" label="Create Role" unelevated @click="promptAdd" />
+      <q-btn color="teal-5" icon="add" label="Create Role" dense no-caps @click="promptAdd" />
     </div>
 
     <div class="row q-col-gutter-md">
@@ -12,7 +12,7 @@
           <q-card-section class="row items-center">
             <div class="text-h6">{{ role.name }}</div>
             <q-space />
-            <q-btn flat round icon="delete" color="grey" size="sm" @click="deleteRole(role.id)" v-if="role.name !== 'Admin'" />
+            <q-btn  round icon="delete" color="grey" size="sm" @click="deleteRole(role.id)" v-if="role.name !== 'Admin'" />
           </q-card-section>
 
           <q-separator />

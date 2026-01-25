@@ -1,9 +1,9 @@
 <template>
   <q-page class="q-pa-md bg-grey-2">
     <div class="row items-center q-mb-md">
-      <div class="text-h5 text-weight-bold">Tenant Management</div>
+      <div class="text-h5 text-weight-bold text-teal  ">Tenant Management</div>
       <q-space />
-      <q-btn color="primary" icon="add" label="Add New Shop" unelevated />
+      <q-btn color="teal-5" no-caps icon="add" label="Add New Shop" unelevated />
     </div>
 
     <q-card flat bordered>

@@ -1,9 +1,9 @@
 <template>
   <q-page class="q-pa-md bg-grey-2">
     <div class="row items-center q-mb-md">
-      <div class="text-h5 text-weight-bold">Tax Rules</div>
+      <div class="text-h5 text-weight-bold text-teal-6">Tax Rules</div>
       <q-space />
-      <q-btn color="primary" icon="add" label="Add Tax Rule" unelevated @click="openDialog()" />
+      <q-btn color="teal" no-caps icon="add" label="Add Tax Rule" dense @click="openDialog()" />
     </div>
 
     <div class="row q-col-gutter-md">
@@ -103,7 +103,7 @@ const defaultForm = { id: null, name: '', rate: 0, status: true }
 const form = reactive({ ...defaultForm })
 
 onMounted(() => {
-  const stored = localStorage.getItem('tenant_taxes')
+  const stored = localStorage.getItem('tenant_taxesPage')
   if (stored) {
     taxes.value = JSON.parse(stored)
   } else {
@@ -140,6 +140,6 @@ const deleteTax = (id) => {
 }
 
 const saveToStorage = () => {
-  localStorage.setItem('tenant_taxes', JSON.stringify(taxes.value))
+  localStorage.setItem('tenant_taxesPage', JSON.stringify(taxes.value))
 }
 </script>

@@ -1,9 +1,9 @@
 <template>
   <q-page class="q-pa-md bg-grey-2">
     <div class="row items-center q-mb-md">
-      <div class="text-h5 text-weight-bold">Customer Database</div>
+      <div class="text-h5 text-weight-bold text-teal-4">Customer Database</div>
       <q-space />
-      <q-btn color="primary" icon="person_add" label="Add Customer" unelevated @click="openDialog()" />
+      <q-btn color="teal-5" no-caps icon="person_add" label="Add Customer" dense @click="openDialog()" />
     </div>
 
     <q-card flat bordered>

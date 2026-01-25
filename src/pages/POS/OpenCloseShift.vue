@@ -1,89 +1,66 @@
 <template>
-  <q-card style="min-width: 400px">
-    <q-card-section class="bg-primary text-white">
-      <div class="text-h6">{{ hasActiveShift ? 'Close Shift' : 'Open New Shift' }}</div>
-    </q-card-section>
+  <q-page class="flex flex-center bg-grey-2">
+    <q-card style="width: 400px; max-width: 90vw">
+      <q-card-section class="bg-primary text-white row items-center">
+        <div class="text-h6">Shift Management</div>
+        <q-space />
+        <q-btn icon="close" flat round dense to="/pos" />
+      </q-card-section>
 
-    <q-card-section class="q-pt-lg">
-
-      <div v-if="!hasActiveShift">
-        <div class="text-body1 q-mb-md">Starting a new day? Enter float amount.</div>
-        <q-input outlined v-model.number="amount" label="Opening Cash Float ($)" type="number" autofocus />
-      </div>
-
-      <div v-else>
-        <div class="row items-center justify-between bg-grey-2 q-pa-sm rounded-borders q-mb-md">
-          <span>Shift Started:</span>
-          <span class="text-weight-bold">{{ currentShift.startTime }}</span>
-        </div>
-        <div class="row items-center justify-between bg-grey-2 q-pa-sm rounded-borders q-mb-lg">
-          <span>Opening Float:</span>
-          <span class="text-weight-bold">${{ currentShift.startAmount }}</span>
+      <q-card-section class="q-pt-lg">
+        <div v-if="!isActive">
+          <div class="text-subtitle1 q-mb-sm">Start New Shift</div>
+          <q-input outlined v-model="amount" label="Opening Cash Amount" prefix="$" type="number" autofocus />
         </div>
 
-        <q-input outlined v-model.number="amount" label="Closing Cash Count ($)" type="number" :rules="[val => val !== null || 'Required']" />
+        <div v-else>
+          <div class="row justify-between q-mb-md">
+            <span>Shift Started:</span>
+            <span class="text-weight-bold">08:00 AM</span>
+          </div>
+          <div class="row justify-between q-mb-lg">
+            <span>Opening Float:</span>
+            <span class="text-weight-bold">$200.00</span>
+          </div>
 
-        <div class="q-mt-sm text-caption text-grey" v-if="amount">
-          Expected Cash: ${{ currentShift.startAmount }} + Sales
-          <br>
-          Difference: {{ (amount - currentShift.startAmount).toFixed(2) }}
+          <div class="text-subtitle1 q-mb-sm">Close Shift</div>
+          <q-input outlined v-model="amount" label="Closing Cash Count" prefix="$" type="number" />
         </div>
-      </div>
+      </q-card-section>
 
-    </q-card-section>
+      <q-separator />
 
-    <q-card-actions align="right" class="text-primary">
-      <q-btn flat label="Cancel" v-close-popup />
-      <q-btn
-        :color="hasActiveShift ? 'red' : 'green'"
-        :label="hasActiveShift ? 'End Shift' : 'Start Shift'"
-        unelevated
-        @click="handleAction"
-      />
-    </q-card-actions>
-  </q-card>
+      <q-card-actions align="right" class="q-pa-md">
+        <q-btn flat label="Cancel" to="/pos" />
+        <q-btn
+          unelevated
+          :color="isActive ? 'red' : 'green'"
+          :label="isActive ? 'End Shift' : 'Start Shift'"
+          @click="toggleShift"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-page>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useQuasar, date } from 'quasar'
+import { ref } from 'vue'
+import { useQuasar } from 'quasar'
+import { useRouter } from 'vue-router'
 
 const $q = useQuasar()
-const emit = defineEmits(['close', 'status-change'])
+const router = useRouter()
+const isActive = ref(false)
+const amount = ref('')
 
-const amount = ref(0)
-const hasActiveShift = ref(false)
-const currentShift = ref({})
+const toggleShift = () => {
+  if (!amount.value) return
 
-onMounted(() => {
-  const stored = localStorage.getItem('pos_current_shift')
-  if (stored) {
-    hasActiveShift.value = true
-    currentShift.value = JSON.parse(stored)
-  }
-})
-
-const handleAction = () => {
-  if (!hasActiveShift.value) {
-    // OPEN SHIFT
-    const shiftData = {
-      id: Date.now(),
-      startTime: date.formatDate(Date.now(), 'HH:mm'),
-      startAmount: amount.value
-    }
-    localStorage.setItem('pos_current_shift', JSON.stringify(shiftData))
-
-    $q.notify({ type: 'positive', message: 'Shift Opened Successfully' })
-    emit('status-change')
-    emit('close')
-  } else {
-    // CLOSE SHIFT
-    localStorage.removeItem('pos_current_shift')
-
-    // In a real app, save this report to a 'shift_reports' table
-    $q.notify({ type: 'warning', message: 'Shift Closed. X-Report generated.' })
-    emit('status-change')
-    emit('close')
-  }
+  isActive.value = !isActive.value
+  $q.notify({
+    type: isActive.value ? 'positive' : 'warning',
+    message: isActive.value ? 'Shift Started' : 'Shift Closed'
+  })
+  router.push('/pos')
 }
 </script>

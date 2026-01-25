@@ -3,7 +3,7 @@
     <div class="row items-center q-mb-md">
       <div class="text-h5 text-weight-bold">Returns & Refunds</div>
       <q-space />
-      <q-btn color="negative" icon="undo" label="New Return" unelevated @click="openReturnDialog" />
+      <q-btn color="negative" icon="undo" no-caps label="New Return" dense @click="openReturnDialog" />
     </div>
 
     <q-card flat bordered>

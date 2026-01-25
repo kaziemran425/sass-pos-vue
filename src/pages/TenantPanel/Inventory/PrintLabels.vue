@@ -20,7 +20,7 @@
             <q-input outlined type="number" v-model.number="quantity" label="Quantity to Print" />
 
             <q-btn
-              color="primary"
+              color="teal-5"
               label="Add to Queue"
               class="full-width"
               icon="playlist_add"
