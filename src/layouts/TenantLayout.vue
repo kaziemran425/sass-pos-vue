@@ -54,6 +54,13 @@
           </q-list>
         </q-expansion-item>
 
+              <q-expansion-item icon="report" label="Finance">
+          <q-list class="q-pl-md">
+            <q-item clickable to="/tenant/income"><q-item-section>Income</q-item-section></q-item>
+            <q-item clickable to="/tenant/expenses"><q-item-section>Expenses</q-item-section></q-item>
+          </q-list>
+        </q-expansion-item>
+
         <q-expansion-item icon="settings" label="Settings">
           <q-list class="q-pl-md">
             <q-item clickable to="/tenant/settings/general"><q-item-section>General</q-item-section></q-item>

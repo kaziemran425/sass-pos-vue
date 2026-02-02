@@ -123,6 +123,16 @@ const routes = [
         path: "settings/taxes",
         component: () => import("pages/TenantPanel/TaxesPage.vue"),
       },
+
+      {
+        path: "income",
+        component: () => import("src/pages/TenantPanel/Finance/Income.vue"),
+      },
+
+      {
+        path: "expenses",
+        component: () => import("src/pages/TenantPanel/Finance/Expence.vue"),
+      },
     ],
   },
 
